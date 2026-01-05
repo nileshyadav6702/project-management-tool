@@ -132,41 +132,45 @@ export default function DashboardPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="border-gray-200">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <FolderKanban className="h-5 w-5 text-blue-600" />
+          <Link href="/projects">
+            <Card className="border-gray-200 hover:shadow-md transition-all cursor-pointer h-full">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <FolderKanban className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <span className="text-xs text-green-600 font-medium">+12%</span>
                     </div>
-                    <span className="text-xs text-green-600 font-medium">+12%</span>
+                    <p className="text-sm text-gray-500">Total Projects</p>
+                    <p className="text-2xl font-bold text-gray-900">{stats?.totalProjects || 0}</p>
                   </div>
-                  <p className="text-sm text-gray-500">Total Projects</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats?.totalProjects || 0}</p>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card className="border-gray-200">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                      <Users className="h-5 w-5 text-orange-600" />
+          <Link href="/teams">
+            <Card className="border-gray-200 hover:shadow-md transition-all cursor-pointer h-full">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <Users className="h-5 w-5 text-orange-600" />
+                      </div>
+                      <span className="text-xs text-green-600 font-medium">+4</span>
                     </div>
-                    <span className="text-xs text-green-600 font-medium">+4</span>
+                    <p className="text-sm text-gray-500">Active Members</p>
+                    <p className="text-2xl font-bold text-gray-900">{stats?.activeTeams || 0}</p>
                   </div>
-                  <p className="text-sm text-gray-500">Active Members</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats?.activeTeams || 0}</p>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card className="border-gray-200">
+          <Card className="border-gray-200 h-full">
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div>
@@ -183,22 +187,24 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-gray-200">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+          <Link href="/tasks?status=done">
+            <Card className="border-gray-200 hover:shadow-md transition-all cursor-pointer h-full">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      </div>
+                      <span className="text-xs text-green-600 font-medium">+8%</span>
                     </div>
-                    <span className="text-xs text-green-600 font-medium">+8%</span>
+                    <p className="text-sm text-gray-500">Completed</p>
+                    <p className="text-2xl font-bold text-gray-900">{stats?.completedTasks || 0}</p>
                   </div>
-                  <p className="text-sm text-gray-500">Completed</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats?.completedTasks || 0}</p>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
 
         {/* Main Content Grid */}

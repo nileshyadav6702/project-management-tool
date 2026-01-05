@@ -68,7 +68,9 @@ const getInitials = (name: string | undefined): string => {
   return name.substring(0, 2).toUpperCase();
 };
 
-export default function InvitePage() {
+import { Suspense } from "react";
+
+function InviteContent() {
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
@@ -405,5 +407,13 @@ export default function InvitePage() {
         </Card>
       </div>
     </MainLayout>
+  );
+}
+
+export default function InvitePage() {
+  return (
+    <Suspense fallback={<MainLayout><div className="flex items-center justify-center py-12">Loading...</div></MainLayout>}>
+      <InviteContent />
+    </Suspense>
   );
 }

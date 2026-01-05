@@ -191,10 +191,23 @@ export default function TaskDetailsPage() {
     },
   });
 
+  const totalPaid = payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
+  // Use task.amount if available, otherwise 0. Or perhaps allow indefinite payments if 0? 
+  // User asked for "remaining amount", implying there is a budget.
+  const taskAmount = task?.amount || 0;
+  const remainingAmount = Math.max(0, taskAmount - totalPaid);
+
   const handleCreatePayment = (e: React.FormEvent) => {
     e.preventDefault();
     if (!task?.assignedTo?._id) return;
     
+    // Validation
+    if (paymentForm.amount <= 0) return;
+    if (paymentForm.amount > remainingAmount) {
+        alert(`Amount exceeds the remaining budget of $${remainingAmount.toLocaleString()}`);
+        return;
+    }
+
     createPaymentMutation.mutate({
       ...paymentForm,
       taskId,
@@ -202,7 +215,7 @@ export default function TaskDetailsPage() {
     });
   };
 
-  const totalPaid = payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
+
 
   if (isLoading) {
     return (
@@ -304,23 +317,37 @@ export default function TaskDetailsPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {Object.entries(taskStatusConfig).map(([key, config]) => {
                     const Icon = config.icon;
                     const isActive = task.status === key;
+                    // Extract color classes
+                    const borderColor = isActive ? config.color.replace('text-', 'border-') : 'border-gray-200';
+                    const hoverBg = isActive ? '' : config.bg;
+                    
                     return (
                       <button
                         key={key}
                         onClick={() => updateStatusMutation.mutate(key)}
                         disabled={updateStatusMutation.isPending || (isMember && !isAssignee)}
-                        className={`p-3 rounded-xl border-2 transition-all ${
-                          isActive 
-                            ? `${config.bg} border-current ${config.color}` 
-                            : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
-                        }`}
+                        className={`
+                          relative group flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200
+                          ${isActive ? `${config.bg} ${borderColor} shadow-sm scale-[1.02]` : `hover:border-gray-300 hover:bg-gray-50`}
+                          ${isMember && !isAssignee ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                        `}
                       >
-                        <Icon className={`h-5 w-5 mx-auto mb-1 ${isActive ? config.color : ""}`} />
-                        <p className="text-xs font-medium">{config.label}</p>
+                         {isActive && (
+                            <div className={`absolute top-2 right-2 w-2 h-2 rounded-full ${config.color.replace('text-', 'bg-')}`} />
+                          )}
+                        <div className={`
+                          w-10 h-10 rounded-full flex items-center justify-center mb-3 transition-colors
+                          ${isActive ? 'bg-white' : `${config.bg} group-hover:bg-white`}
+                        `}>
+                          <Icon className={`h-5 w-5 ${config.color}`} />
+                        </div>
+                        <p className={`font-semibold text-sm ${isActive ? 'text-gray-900' : 'text-gray-600'}`}>
+                          {config.label}
+                        </p>
                       </button>
                     );
                   })}
@@ -372,13 +399,28 @@ export default function TaskDetailsPage() {
                           <Input
                             id="paymentAmount"
                             type="number"
+                            max={remainingAmount}
                             value={paymentForm.amount}
-                            onChange={(e) => setPaymentForm({ ...paymentForm, amount: parseInt(e.target.value) || 0 })}
-                            placeholder="0"
+                            onChange={(e) => {
+                                const val = parseFloat(e.target.value);
+                                if (val > remainingAmount) {
+                                  // Optional: trigger a toast or simply visually warn (for simplicity here just update state, validation is on submit too)
+                                }
+                                setPaymentForm({ ...paymentForm, amount: val })
+                            }}
+                            placeholder={`Max: ${remainingAmount}`}
                             required
-                            className="h-10 pl-7 border-gray-200"
+                            className={`h-10 pl-7 ${paymentForm.amount > remainingAmount ? "border-red-500 focus:ring-red-200" : "border-gray-200"}`}
                           />
                         </div>
+                        {paymentForm.amount > remainingAmount && (
+                            <p className="text-xs text-red-500 font-medium">
+                                Amount cannot exceed remaining budget (${remainingAmount})
+                            </p>
+                        )}
+                         <p className="text-xs text-emerald-600 font-medium">
+                            Remaining Budget: ${remainingAmount.toLocaleString()}
+                         </p>
                       </div>
 
                       {/* Payment Mode */}
@@ -426,8 +468,8 @@ export default function TaskDetailsPage() {
                     <div className="flex justify-end mt-4">
                       <Button
                         type="submit"
-                        disabled={createPaymentMutation.isPending || paymentForm.amount <= 0}
-                        className="h-9 px-5 bg-emerald-600 hover:bg-emerald-700 text-white"
+                        disabled={createPaymentMutation.isPending || paymentForm.amount <= 0 || paymentForm.amount > remainingAmount}
+                        className="h-9 px-5 bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {createPaymentMutation.isPending ? "Creating..." : "Create Payment"}
                       </Button>
